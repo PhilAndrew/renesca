@@ -54,11 +54,11 @@ trait QueryInterface {
           // the schema graph methods will never be called,
           // but we use the implementation of the add function,
           // which also adds the path of hyperrelations to the graph.
-          override def nodes: Set[_ <: schema.Node] = ???
-          override def hyperRelations: Set[_ <: HyperRelation[_, _, _, _, _]] = ???
-          override def relations: Set[_ <: schema.Relation[_, _]] = ???
-          override def abstractRelations: Set[_ <: AbstractRelation[_, _]] = ???
-          override def graph: Graph = Graph.empty
+          override def nodes = ???
+          override def hyperRelations = ???
+          override def relations = ???
+          override def abstractRelations = ???
+          override def graph = Graph.empty
         }
 
         schemaGraph.add(allItems: _*)

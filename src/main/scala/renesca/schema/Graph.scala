@@ -7,22 +7,22 @@ package renesca.schema
 
 import renesca.graph.Path
 import renesca.{graph => raw}
-
+import scala.collection.mutable
 
 //TODO: implicits from Graph to raw.Graph
 trait Graph extends Filter {
-  def nodes: Set[_ <: Node]
-  def relations: Set[_ <: Relation[_,_]]
-  def abstractRelations: Set[_ <: AbstractRelation[_,_]]
-  def hyperRelations: Set[_ <: HyperRelation[_,_,_,_,_]]
+  def nodes: mutable.LinkedHashSet[_ <: Node]
+  def relations: mutable.LinkedHashSet[_ <: Relation[_,_]]
+  def abstractRelations: mutable.LinkedHashSet[_ <: AbstractRelation[_,_]]
+  def hyperRelations: mutable.LinkedHashSet[_ <: HyperRelation[_,_,_,_,_]]
 
   def nodesAs[T <: Node](nodeFactory: NodeFactory[T]) = {
-    filterNodes(graph.nodes.toSet, nodeFactory)
+    filterNodes(graph.nodes, nodeFactory)
   }
 
   def relationsAs[RELATION <: Relation[START, END], START <: Node, END <: Node]
   (relationFactory: RelationFactory[START, RELATION, END]) = {
-    filterRelations(graph.relations.toSet, relationFactory)
+    filterRelations(graph.relations, relationFactory)
   }
 
   def hyperRelationsAs[
@@ -32,7 +32,7 @@ trait Graph extends Filter {
   ENDRELATION <: Relation[HYPERRELATION, END],
   END <: Node]
   (hyperRelationFactory: HyperRelationFactory[START, STARTRELATION, HYPERRELATION, ENDRELATION, END]) = {
-    filterHyperRelations(graph.nodes.toSet, graph.relations.toSet, hyperRelationFactory)
+    filterHyperRelations(graph.nodes, graph.relations, hyperRelationFactory)
   }
 
   def add(schemaItems: Item*) {

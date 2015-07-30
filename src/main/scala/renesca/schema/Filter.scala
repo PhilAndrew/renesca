@@ -1,12 +1,13 @@
 package renesca.schema
 
 import renesca.{graph => raw}
+import scala.collection.mutable
 
 trait Filter {
   def graph: raw.Graph
 
-  def filterNodes[T <: Node](nodes: Set[raw.Node], nodeFactory: NodeFactory[T]): Set[T] = {
-    nodes.filter(_.labels.contains(nodeFactory.label)).map { node =>
+  def filterNodes[T <: Node](nodes: Traversable[raw.Node], nodeFactory: NodeFactory[T]): mutable.LinkedHashSet[T] = {
+    mutable.LinkedHashSet.empty ++ nodes.filter(_.labels.contains(nodeFactory.label)).map { node =>
       val schemaNode = nodeFactory.wrap(node)
       schemaNode.graphOption = Some(graph)
       schemaNode
@@ -14,8 +15,8 @@ trait Filter {
   }
 
   def filterRelations[START <: Node, RELATION <: Relation[START, END], END <: Node]
-  (relations: Set[raw.Relation], relationFactory: RelationFactory[START, RELATION, END]): Set[RELATION] = {
-    relations.filter(_.relationType == relationFactory.relationType).map(relationFactory.wrap)
+  (relations: Traversable[raw.Relation], relationFactory: RelationFactory[START, RELATION, END]): mutable.LinkedHashSet[RELATION] = {
+    mutable.LinkedHashSet.empty ++ relations.filter(_.relationType == relationFactory.relationType).map(relationFactory.wrap)
   }
 
   def filterHyperRelations[
@@ -24,10 +25,10 @@ trait Filter {
   HYPERRELATION <: HyperRelation[START, STARTRELATION, HYPERRELATION, ENDRELATION, END],
   ENDRELATION <: Relation[HYPERRELATION, END],
   END <: Node]
-  (nodes: Set[raw.Node], relations: Set[raw.Relation],
+  (nodes: Traversable[raw.Node], relations: Traversable[raw.Relation],
    hyperRelationFactory: HyperRelationFactory[START, STARTRELATION, HYPERRELATION, ENDRELATION, END])
-  : Set[HYPERRELATION] = {
-    nodes.filter(_.labels.contains(hyperRelationFactory.label)).map { node =>
+  : mutable.LinkedHashSet[HYPERRELATION] = {
+    mutable.LinkedHashSet.empty ++ nodes.filter(_.labels.contains(hyperRelationFactory.label)).map { node =>
       val startRelation = relations.find(relation => relation.relationType == hyperRelationFactory.startRelationType && relation.endNode == node)
       val endRelation = relations.find(relation => relation.relationType == hyperRelationFactory.endRelationType && relation.startNode == node)
       // The Start- and EndRelation might not be part of the graph
